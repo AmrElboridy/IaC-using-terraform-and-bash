@@ -1,0 +1,24 @@
+---
+#Stages
+stages:
+  - lint
+  - test
+  - provision
+  - configure
+
+validation:
+  stage: test
+  tags:
+    - shell
+  script:
+    - terraform --version
+
+terraform:
+  stage: provision
+  tags:
+    - shell
+  script:
+    - cd Terraform
+    - terraform plan
+    - terraform apply -auto-approve
+    - ./Parser.sh

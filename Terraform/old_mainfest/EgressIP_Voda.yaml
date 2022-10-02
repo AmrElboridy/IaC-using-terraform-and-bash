@@ -1,0 +1,21 @@
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: egressip-idp
+  namespace: amr_test
+spec:
+  egressIPs:
+  - 192.168.1.1
+  namespaceSelector:
+    matchLabels:
+      role: idp
+
+status:
+  assignments:
+  - node: ocptinfra01.internal.eg.vodafone.com
+    egressIP: 10.230.86.146
+  - node: ocptinfra02.internal.eg.vodafone.com 
+    egressIP: 10.230.86.147
+  - node: ocptinfra03.internal.eg.vodafone.com 
+    egressIP: 10.230.85.121
+
