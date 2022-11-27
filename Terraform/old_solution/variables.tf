@@ -5,14 +5,6 @@ variable "project" {
   type = string
   default = ""
 }
-################ ConfigPath ################
-# Input variable: ConfigPath
-variable "ConfigPath" {
-  description = "OC configPath to be added to the project"
-  type = string
-  default = ""
-}
-
 ################################################
 ################ resource_qouta ################
 # Input variable: quota_pods
@@ -64,13 +56,6 @@ variable "EgressIP" {
   type = string
   default = ""
 }
-# Input variable: EgressIP HA
-variable "EgressIpHA" {
-  description = "EgressIP to be added to the project HA"
-  type = string
-  default = ""
-}
-
 ################################################
 ################ Network #######################
 # Input variable: IngressIP
@@ -81,18 +66,3 @@ variable "IngressIP" {
   default = ""
 }
 ################################################
-
-# Input Variable: Site 
-variable "Site" {
-  description = "Site to be selected from the portal"
-  type = string
-  default = ""
-}
-# Input Variable: Group
-variable "GROUP" {
-  description = "GROUP to be added to the project"
-  type = string
-  default = ""
-}
-
-
