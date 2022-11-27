@@ -11,7 +11,7 @@ function EgressIPadder {
       }'
         while IFS="" read -r node || [ -n "$node" ]
         do
-            CURRENT=$(oc get hostsubnets.network.openshift.io | grep $node | awk '{print $1}' | tr -d '[]')
+            CURRENT=$(oc get hostsubnets.network.openshift.io | grep $node | awk '{print $6}' | tr -d '[]')
             oc patch hostsubnet $node --type=merge -p \
                     '{"egressCIDRs": ["'$2'/32", '$CURRENT'] }'
         done < list.txt
