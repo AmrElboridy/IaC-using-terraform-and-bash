@@ -1,0 +1,81 @@
+---
+############### PostgreSQL podman run
+- name: Install podman for postgresql
+  become: true
+  ansible.builtin.shell: |
+              podman run --detach --name vodafone-pgsql-2 -p 5433:5432 \
+              --env REPMGR_PARTNER_NODES=vodafone-pgsql-1,vodafone-pgsql-2,vodafone-pgsql-3:5433 \
+              --env REPMGR_NODE_NAME=vodafone-pgsql-2 \
+              --env REPMGR_NODE_NETWORK_NAME=vodafone-pgsql-2 \
+              --env REPMGR_PRIMARY_HOST=vodafone-pgsql-1 \
+              --env REPMGR_PRIMARY_PORT=5433 \
+              --env REPMGR_PORT_NUMBER=5433 \
+              --env REPMGR_PASSWORD=repmgrpass \
+              --env POSTGRESQL_PASSWORD=secretpass \
+              -v /var/lib/postgresql/data:/var/lib/postgresql/data  \
+              -v /var/pg_log:/var/log  \
+              -v /bitnami/postgresql/conf:/bitnami/postgresql/conf \
+              docker.io/bitnami/postgresql-repmgr
+- name: Create prep directory 
+  become: true
+  ansible.builtin.file:
+    path: /prep
+    state: directory
+- name: Copy necessray files
+  become: true
+  ansible.builtin.copy:
+          src: "{{ item }}" 
+          dest: /prep/
+  with_items:
+            - ep.sh
+            - Dockerfile  
+            - password.txt
+###############################
+- name: Ensures /prep/down and /up dirs exists
+  become: true
+  file: 
+    path: /prep/{{ item }}
+    state: directory
+  with_items:
+            - up
+            - down  
+###############################
+- name: Copy necessray files
+  become: true
+  ansible.builtin.copy:
+          src: down/nginx.conf
+          dest: /prep/down/nginx.conf
+- name: Copy necessray files
+  become: true
+  ansible.builtin.copy:
+          src: up/nginx.conf
+          dest: /prep/up/nginx.conf
+###############################
+- name: Install customeized nginx pod
+  become: true
+  ansible.builtin.shell: |
+                cd /prep/
+                podman build -t vodafone-pg-proxy-2 .
+- name: Run nginx pod
+  become: true
+  ansible.builtin.shell: |
+                cd /prep/
+                podman run --name vodafone-proxy-2 -p 5432:5432 \
+                -v nginx:/etc/nginx/nginx \
+                -d localhost/vodafone-pg-proxy-2
+############### Systemd unit for both of them.
+- name: Copy systemd unit files for the container
+  become: true
+  ansible.builtin.copy:
+          src: "{{ item }}" 
+          dest: /etc/systemd/system/
+  with_items:
+            - N_sd.service    
+            - Psql_sd.service
+- name: operate systemd units
+  become: true
+  ansible.builtin.shell: |
+              systemctl enable N_sd.service
+              systemctl start N_sd.service
+              systemctl enable Psql_sd.service
+              systemctl start Psql_sd.service

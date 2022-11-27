@@ -1,0 +1,6 @@
+---
+- name: Install PostgreSQL on 3 VMs Cluster- Secondary 2 
+  hosts: V_Idp
+  roles:
+      - prerequisites
+      - pod_configuration

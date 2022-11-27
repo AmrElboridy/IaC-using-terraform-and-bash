@@ -1,0 +1,5 @@
+
+
+Mounted_OS_dir: /mnt/iso/centos7
+Original_OS_dir: /tmp/CentOS-7-x86_64-DVD-2003.iso
+xcat_repo: /etc/yum.repos.d/centos-dvd.repo

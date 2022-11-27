@@ -1,0 +1,48 @@
+---
+- name: Upgrade all packages
+  become: true
+  yum:
+      name: '*'
+      state: latest
+- name: Check if  container-tools:rhel8 with repos Installed and enabled
+  stat:
+      path:  /run/podman
+  register: podman_result   
+- name: Install container-tools:rhel8 with repos enabled
+  become: true
+  ansible.builtin.shell: |
+                          yum module enable  container-tools:rhel8 -y
+                          yum module install  container-tools:rhel8 -y
+  when: not podman_result.stat.exists
+- name: Copy hosts and replace it
+  become: true
+  ansible.builtin.copy:
+          src: hosts
+          dest: /etc/
+- name: Making sure necessray dirs existance 
+  stat:
+    path: "{{item}}"
+  register: folder_existance
+  with_items:
+      - ["/var/lib/postgresql/data","/var/pg_log","/bitnami/postgresql/conf/"]
+#- name: Print uptime of managed node
+  #debug:
+    #msg: "{{ folder_existance.results,stat.exists }}"
+- name: Create data directoriy
+  become: true
+  ansible.builtin.file:
+    path: /var/lib/postgresql/data
+    state: directory
+  when: not folder_existance.results,stat.exists
+- name: Create postgresql log 
+  become: true
+  ansible.builtin.file:
+    path: /var/pg_log
+    state: directory
+  when: not folder_existance.results,stat.exists
+- name: Create postgresql conf 
+  become: true
+  ansible.builtin.file:
+    path: /bitnami/postgresql/conf/
+    state: directory
+  when: folder_existance.results,stat.exists

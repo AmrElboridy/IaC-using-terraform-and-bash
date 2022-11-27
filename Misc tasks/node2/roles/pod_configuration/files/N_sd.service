@@ -1,0 +1,17 @@
+[Unit]
+Description= Nginx container
+Requires=Psql_sd.service
+After=Psql_sd.service
+
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/podman start -a vodafone-proxy-2
+ExecStop=/usr/bin/podman stop -t 2 vodafone-proxy-2
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+#WantedBy=local.target
+WantedBy=default.target

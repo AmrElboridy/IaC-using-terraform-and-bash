@@ -1,0 +1,5 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+192.168.122.253     vodafone-pgsql-1
+192.168.122.155     vodafone-pgsql-2
+192.168.122.5     vodafone-pgsql-3

@@ -1,0 +1,7 @@
+---
+# handlers file for prerequisites
+- name: Enable the chrony for Network Time Protocol (NTP) 
+  ansible.builtin.systemd:
+    name: chronyd.service
+    state: started
+    enabled: yes

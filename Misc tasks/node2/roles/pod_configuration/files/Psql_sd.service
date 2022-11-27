@@ -1,0 +1,15 @@
+[Unit]
+Description=Postgresql  container
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/podman start -a vodafone-pgsql-2
+ExecStop=/usr/bin/podman stop -t 2 vodafone-pgsql-2
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+
+[Install]
+#WantedBy=local.target
+WantedBy=default.target
