@@ -1,0 +1,19 @@
+---
+# tasks file for AWX_Installation
+- name: Install the latest version of virtualenv and python3-pip
+  become: true
+  ansible.builtin.dnf:
+    name:
+      - virtualenv
+      - python3-pip
+    state: latest
+- name: Check AWX_Installation existance
+  become: true
+  stat: 
+    path: /home/amr/.local/bin/awx   #change the user name
+  register: awx_stat
+- name: AWX_Installation has been installed
+  become: true
+  become_user: amr                #change the user name
+  command: pip3 install --user https://releases.ansible.com/ansible-tower/cli/ansible-tower-cli-latest.tar.gz
+  when: not awx_stat.stat.exists

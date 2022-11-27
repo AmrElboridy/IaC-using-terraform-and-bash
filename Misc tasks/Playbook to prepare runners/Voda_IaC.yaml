@@ -1,0 +1,7 @@
+---
+- name:  Terraform, AWX, and gitlab runner Installation 
+  hosts: all
+  roles:
+      - Terraform_Installation
+      - AWX_Installation
+      - Gitlab_Runner

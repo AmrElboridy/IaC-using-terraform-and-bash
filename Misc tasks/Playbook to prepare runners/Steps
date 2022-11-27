@@ -1,0 +1,85 @@
+# Installing Terraform
+mkdir terraformbin
+cd terraformbin
+# Newer Version
+curl -LJO "https://releases.hashicorp.com/terraform/1.2.3/terraform_1.2.3_linux_amd64.zip"
+sudo yum makecache
+sudo yum install -y unzip
+unzip terraform_1.1.6_linux_amd64.zip
+echo $PATH
+# If the output /usr/bin then
+mv terraform /usr/bin/
+# If the output /usr/local/bin then
+mv terraform /usr/local/bin/
+# Make sure you have installed Terraform correctly
+terraform --version
+#############################################################
+#############################################################
+#############################################################
+#############################################################
+#############################################################
+#AWX Ansible Tower CLI
+#Installing Virtual Env.
+dnf install virtualenv -y
+pip3 install --user https://releases.ansible.com/ansible-tower/cli/ansible-tower-cli-latest.tar.gz
+awx --version
+###################################
+#Gitlab Runner
+#Step 1: Installing gitlab-runner rpm
+dnf install git-all -y
+curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/rpm/gitlab-runner_amd64.rpm"
+rpm -ivh gitlab-runner_amd64.rpm
+##########################################
+#Step 2: Downloading the gitlab certificate
+#We registered shell runner executer
+# Downloading the gitlab certificate
+SERVER=dchqatgit01.vf-eg.internal.vodafone.com
+PORT=443
+CERTIFICATE=/etc/gitlab-runner/certs/${SERVER}.pem
+mkdir -p /etc/gitlab-runner/certs
+openssl s_client -showcerts -connect $SERVER:443 < /dev/null 2>/dev/null | openssl x509 -outform PEM > $CERTIFICATE
+# viewing the public certificate
+openssl x509 -in /etc/gitlab-runner/certs/dchqatgit01.vf-eg.internal.vodafone.com.pem -text |less
+
+#Step 3: Registering the gitlab-runner
+#We registered shell runner executer
+# Checking the gitlab-runner status if it's running we will stop it
+systemctl status gitlab-runner
+# Remove the config.toml file if exists
+rm -rf /etc/gitlab-runner/config.toml
+# Runner Registration
+#gitlab-runner register --tls-ca-file /etc/gitlab-runner/certs/dchqatgit01.vf-eg.internal.vodafone.com.pem
+.#pem\
+  --non-interactive \
+  --executor "shell" \
+  --url "https://dchqatgit01.vf-eg.internal.vodafone.com/" \
+  --registration-token "TOKEN" \
+  --description "shell-runner" \
+  --maintenance-note "Free-form maintainer notes about this runner" \
+  --tag-list "shell, rehl8, ansible" \
+  --run-untagged="false" \
+  --locked="false"
+
+
+gitlab-runner register --tls-ca-file /etc/gitlab-runner/certs/dchqatgit01.vf-eg.internal.vodafone.com.pem\
+  --non-interactive \
+  --executor "shell" \
+  --url "https://dchqatgit01.vf-eg.internal.vodafone.com/" \
+  --registration-token "n7Wkt46SjA5P-B1cmn29" \
+  --description "shell-runner" \
+  --maintenance-note "Free-form maintainer notes about this runner" \
+  --tag-list "shell, rehl8, ansible" \
+  --run-untagged="false" \
+  --locked="false"
+# Start the runner
+systemctl start gitlab-runner
+systemctl status gitlab-runner
+
+
+
+# Start the runner
+systemctl start gitlab-runner
+systemctl status gitlab-runner
+
+
+

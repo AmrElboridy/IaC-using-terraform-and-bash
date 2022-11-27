@@ -1,0 +1,8 @@
+---
+# tasks file for Gitlab_Runner
+- name: Install gitlab-runner rpm
+  become: true
+  ansible.builtin.shell: |
+            dnf install git-all
+            curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/rpm/gitlab-runner_amd64.rpm"
+            rpm -ivh gitlab-runner_amd64.rpm

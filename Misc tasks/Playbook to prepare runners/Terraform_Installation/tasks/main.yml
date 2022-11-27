@@ -1,0 +1,49 @@
+---
+# tasks file for Terraform_Installation
+- name: Upgrade all packages
+  become: true
+  yum:
+      name: '*'
+      state: latest
+- name: Install unzip
+  yum:
+      name: 
+          - unzip
+      state: present
+- name: Making sure terraformbin dir existance 
+  become: true
+  stat:
+    path: /terraformbin
+  register: folder_existance
+- name: Create terraformbin directoriy
+  become: true
+  ansible.builtin.file:
+    path: /terraformbin
+    state: directory
+  when: not folder_existance.stat.exists
+- name: Check if  terraform_1 Installed and enabled
+  become: true
+  stat:
+      path:  /terraformbin/terraform_1.2.4_linux_amd64.zip
+  register: terraform_result   
+- name: Install terraform
+  become: true
+  args:
+    chdir: /terraformbin
+  ansible.builtin.shell: |
+              curl -LJO "https://releases.hashicorp.com/terraform/1.2.4/terraform_1.2.4_linux_amd64.zip"
+              yum makecache
+              unzip terraform_1.2.4_linux_amd64.zip
+  when: not terraform_result.stat.exists
+- name: Check terraform exists on  /usr/local/sbin
+  become: true
+  stat: 
+    path: /usr/local/sbin/terraform
+  register: terra_stat
+- name: Move terraform to /usr/local/sbin
+  become: true
+  args:
+    chdir: /terraformbin
+  command: mv terraform /usr/local/sbin
+  when: not terra_stat.stat.exists
+
