@@ -21,33 +21,18 @@ function EgressIPadder {
     }
 ############ Add NTs to group or create it and assign  permissions #####
 function GroupAdministration {
-        myArray=$3
-        declare -a arr=()
+       GROUPDL="$1"
+        CHK="$(oc get groups | grep "$GROUPDL"| wc -l)"
 
-        for usr in ${myArray[@]};
-        do
-        CHK="$(oc get groups | grep -w "$(echo $usr | tr -d "()" )" | wc -l)"
-                if [  $CHK -eq 1  ];
-		then export GROUP=$(oc get groups | grep -w "$(echo $usr | tr -d "()" )"  | cut -d" " -f1)
-                else :
-                fi
-        arr+=( $CHK )
-        done
-
-        CHK2="$(echo ${arr[0]} + ${arr[1]} + ${arr[2]} | bc)"
-	declare -a arr2=()
-	arr2=$(echo ${myArray[*]} | tr -d "()")
-                if [  "$CHK2" -ge "1"  ];
+                if [  "$CHK" -eq 1  ];
                 then
-                    oc adm groups add-users $GROUP ${arr2[@]}
-                    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $1
-                    oc adm policy add-role-to-group edit devops -n $1
-                    oc adm policy add-role-to-group edit $GROUP -n $1
+                    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $2
+                    oc adm policy add-role-to-group edit devops -n $2
+                    oc adm policy add-role-to-group edit "$GROUPDL" -n $2
                 else
-                    oc adm groups new $2 ${arr2[@]}
-                    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $1
-                    oc adm policy add-role-to-group edit devops -n $1
-                    oc adm policy add-role-to-group edit $2 -n $1
+                    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $2
+                    oc adm policy add-role-to-group edit devops -n $2
+                    echo "Please Contact Your System Administrator, This user has no Group"
                 fi
 
 }
