@@ -42,8 +42,9 @@ The bash script provided contains three separate functions: EgressIPadder, Group
 
 A role which allow Servic account  .. to give another service account admin cluster role
 
-oc create clusterrole permissionsrole --verb=* --resource=roles,rolebindings,clusterroles,clusterrolebindings
-oc adm policy add-cluster-role-to-user permissionsrole -z oc-sa
+    oc create clusterrole permissionsrole --verb=* --resource=roles,rolebindings,clusterroles,clusterrolebindings
+    oc adm policy add-cluster-role-to-user permissionsrole -z oc-sa
+    
 =================================================================
 
 
