@@ -11,7 +11,7 @@ function EgressIPadder {
       }'
         while IFS="" read -r node || [ -n "$node" ]
         do
-            CURRENT=$(oc get hostsubnets.network.openshift.io | grep $node |  awk '{print $5}' | tr -d '[]')
+            CURRENT=$(oc get hostsubnets.network.openshift.io | grep $node | awk '{print $6}' | tr -d '[]')
             oc patch hostsubnet $node --type=merge -p \
                     '{"egressCIDRs": ["'$2'/32", '$CURRENT'] }'
         done < list.txt
@@ -19,26 +19,39 @@ function EgressIPadder {
         echo "Kindly make sure OC CLI tools are installed"
     fi 
     }
-############ Add edit role to the reuqester Group #####
-
+############ Add NTs to group or create it and assign  permissions #####
 function GroupAdministration {
-       GROUPDL="$1"
-        CHK="$(oc get groups | grep "$GROUPDL"| wc -l)"
+        myArray=$3
+        declare -a arr=()
 
-                if [  "$CHK" -eq 1  ];
+        for usr in ${myArray[@]};
+        do
+        CHK="$(oc get groups | grep -w "$(echo $usr | tr -d "()" )" | wc -l)"
+                if [  $CHK -eq 1  ];
+		then export GROUP=$(oc get groups | grep -w "$(echo $usr | tr -d "()" )"  | cut -d" " -f1)
+                else :
+                fi
+        arr+=( $CHK )
+        done
+
+        CHK2="$(echo ${arr[0]} + ${arr[1]} + ${arr[2]} | bc)"
+	declare -a arr2=()
+	arr2=$(echo ${myArray[*]} | tr -d "()")
+                if [  "$CHK2" -ge "1"  ];
                 then
-                    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $2
-                    oc adm policy add-role-to-group edit devops -n $2
-                    oc adm policy add-role-to-group edit "$GROUPDL" -n $2
+                    oc adm groups add-users $GROUP ${arr2[@]}
+                    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $1
+                    oc adm policy add-role-to-group edit devops -n $1
+                    oc adm policy add-role-to-group edit $GROUP -n $1
                 else
-		    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $2
-                    oc adm policy add-role-to-group edit devops -n $2
-                    echo "Please Contact Your System Administrator, Requester Has No Group In Selected OpenShift Cluster"
+                    oc adm groups new $2 ${arr2[@]}
+                    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $1
+                    oc adm policy add-role-to-group edit devops -n $1
+                    oc adm policy add-role-to-group edit $2 -n $1
                 fi
 
 }
 
-######### Select the cluster ###########
 function SiteSelector {
     if [   "$1" == "HQ(HACluster)"  ];
     then
@@ -46,41 +59,31 @@ function SiteSelector {
 	terraform plan -var ConfigPath="$KUBECONFIG"
         terraform apply  -var ConfigPath="$KUBECONFIG" -auto-approve
         oc annotate namespace $2 openshift.io/node-selector="env=prod"
-	oc label namespace $2 $3
     elif [  "$1" == "HQ(Staging)" ];
     then
         export KUBECONFIG=~/.kube/ha-kubeconfig
         terraform plan -var ConfigPath="$KUBECONFIG"
         terraform apply  -var ConfigPath="$KUBECONFIG" -auto-approve
         oc annotate namespace $2 openshift.io/node-selector="env=stg"
-	oc label namespace $2 $3
     elif [  "$1" == "HQ(MainCluster)" ];
     then
         export KUBECONFIG=~/.kube/main-kubeconfig
         terraform plan -var ConfigPath="$KUBECONFIG"
         terraform apply  -var ConfigPath="$KUBECONFIG" -auto-approve
-	oc annotate namespace $2 openshift.io/node-selector=node-role.kubernetes.io/worker=
-	oc label namespace $2 $3
     elif [  "$1" == "HQ(DevOpsCluster)" ];
     then
         export KUBECONFIG=~/.kube/devops-kubeconfig
         terraform plan -var ConfigPath="$KUBECONFIG"
         terraform apply  -var ConfigPath="$KUBECONFIG" -auto-approve
-	oc label namespace $2 $3
-	oc annotate namespace $2 openshift.io/node-selector=node-role.kubernetes.io/worker=
    elif [  "$1" == "HQ(DRCluster)" ];
     then
         export KUBECONFIG=~/.kube/DR-kubeconfig
         terraform plan -var ConfigPath="$KUBECONFIG"
         terraform apply  -var ConfigPath="$KUBECONFIG" -auto-approve
-	oc annotate namespace $2 openshift.io/node-selector=node-role.kubernetes.io/worker=
-	oc label namespace $2 $3
    else
         export KUBECONFIG=~/.kube/test-kubeconfig
         terraform plan -var ConfigPath="$KUBECONFIG"
         terraform apply  -var ConfigPath="$KUBECONFIG" -auto-approve
-	oc annotate namespace $2 openshift.io/node-selector=node-role.kubernetes.io/worker=
-	oc label namespace $2 $3
    fi
 
 }

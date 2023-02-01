@@ -9,14 +9,16 @@ then
 	Variable_subst EgressIP
 	Variable_subst project
 	Variable_subst Site
-	
-	export GroupDL=$(cat terraform.tfvars | grep GroupDL | cut -d= -f2-50 |  tr -d '"' )
-	export LABEL=$(cat terraform.tfvars | grep LABEL | cut -d= -f2,3 | tr -d '"' |  sed 's/^ *//g')
+	Variable_subst GroupDL
+	Variable_subst DuplicateCheckBox
+	Variable_subst EgressIpHA
 
-    envsubst '${LABEL},${project},${EgressIP},${Site},${NT},${GroupDL}' < "IaC_ref.sh" > "IaC.sh"
+	export NT=$(cat terraform.tfvars | grep NT | cut -d= -f2 | sed 's/^ *//g')
+
+    envsubst '${DuplicateCheckBox},${EgressIpHA},${project},${EgressIP},${Site},${NT},${GroupDL}' < "IaC_ref.sh" > "IaC.sh"
     ##########################
     ## Shell script to execute custom infrastructe as code
-    #######################
+    ########################
     /bin/bash IaC.sh
 else
     echo "Kindly re-add required files: terraform.tfvars and IaC files"
