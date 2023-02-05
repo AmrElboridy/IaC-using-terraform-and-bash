@@ -3,7 +3,6 @@
 stages:
   - test
   - provision
-  - configure
   - email-failure
   - email-success
 validation:
