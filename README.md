@@ -39,6 +39,12 @@ The bash script provided contains three separate functions: EgressIPadder, Group
 
 =================================================================
 
+**Pipeline Code**
+
+This code works to execute a pipeline which is split into multiple stages. The five stages are 'test', 'provision', 'configure', 'email-failure', and 'email-success'. The 'test' stage is validated with a script to check 'terraform --version'. The 'provision' stage requires the script 'Parser.sh' to be executed within the 'Terraform' directory. 'Email-failure' and 'email-success' stages use a 'mailx' script to send out notifications to the specified email addresses. This script will execute 'onfailure' and 'onsuccess' respectively.
+
+=================================================================
+
 
 A role which allow Servic account  .. to give another service account admin cluster role
 
