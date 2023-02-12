@@ -35,7 +35,7 @@ function GroupAdministration {
                 else
 		    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $2
                     oc adm policy add-role-to-group edit devops -n $2
-                    echo "Please Contact Your System Administrator, Requester Has No Group In Selected OpenShift Cluster"
+		    echo "Group ‘$GROUPDL’ was not found in the OpenShift Cluster for this Project ‘$2’. Please check the group name and try again."
                 fi
 
 }
