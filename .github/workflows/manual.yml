@@ -1,0 +1,46 @@
+ name: CI/CD Pipeline
+on: [push]
+jobs:
+  validation:
+    name: Test
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v2.3.1
+      - name: Run tests
+        run: terraform --version
+
+  terraform: 
+    name: Provision 
+    runs-on: ubuntu-latest
+    steps: 
+      - uses : actions/checkout@v2.3.1
+      - name : Run Terraform Scripts 
+        run : cd Terraform && ./Parser.sh
+
+  email-failure:  
+    name : Email Failure  
+    if : failure()   # condition to send email on failure of pipeline  
+    runs-on : ubuntu-latest  
+    steps :   # command to send mail on failure of pipeline  
+
+      - name : Send mail on Failure  
+
+        run : |  
+
+          echo "The pipeline has been failed for the project you requested!" | mailx -vvv -s "Project Pipline" tech-itinfrastructurearchitecture-design&planning@vodafone.com.eg,techit-dccloudnativeplatform@vodafone.com.eg
+
+  email-success:     # job to send mail on success of pipeline    
+
+    name : Email Success    
+
+    if : success()     # condition to send mail on success of pipeline    
+
+    runs-on : ubuntu-latest    
+
+    steps :     # command to send mail on success of pipeline    
+
+      - name : Send mail on Success    
+
+        run : |    
+
+          echo "The pipeline has been passed successfully for the project you requested!" | mailx -vvv -s "Project Pipline" tech-itinfrastructurearchitecture-design&planning@vodafone.com.eg,techit-dccloudnativeplatform@vodafone.com.eg

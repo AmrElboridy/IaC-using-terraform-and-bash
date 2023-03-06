@@ -1,24 +1,34 @@
 ---
 #Stages
 stages:
-  - lint
   - test
   - provision
-  - configure
-
+  - email-failure
+  - email-success
 validation:
   stage: test
   tags:
     - shell
   script:
     - terraform --version
-
 terraform:
   stage: provision
   tags:
     - shell
   script:
     - cd Terraform
-    - terraform plan
-    - terraform apply -auto-approve
     - ./Parser.sh
+email-failure:
+  stage: email-failure
+  tags:
+    - shell
+  script:
+    - echo "The pipeline has been failed for the project you requested!" | mailx -vvv -s "Project Pipline" tech-itinfrastructurearchitecture-design&planning@vodafone.com.eg,techit-dccloudnativeplatform@vodafone.com.eg
+  when: on_failure
+email-success:
+  stage: email-success
+  tags:
+    - shell
+  script:
+    - echo "The pipeline has been passed successfully for the project you requested!" | mailx -vvv -s "Project Pipline" tech-itinfrastructurearchitecture-design&planning@vodafone.com.eg,techit-dccloudnativeplatform@vodafone.com.eg
+  when: on_success

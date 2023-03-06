@@ -9,6 +9,7 @@ function EgressIPadder {
           "'$2'"
         ]
       }'
+        # Loop through the list of nodes
         while IFS="" read -r node || [ -n "$node" ]
         do
             CURRENT=$(oc get hostsubnets.network.openshift.io | grep $node |  awk '{print $5}' | tr -d '[]')
@@ -22,6 +23,7 @@ function EgressIPadder {
 ############ Add edit role to the reuqester Group #####
 
 function GroupAdministration {
+# first checks to see if the OpenShift CLI tools are installed, and then adds the egress IPs to the selected nodes
        GROUPDL="$1"
         CHK="$(oc get groups | grep "$GROUPDL"| wc -l)"
 
@@ -33,12 +35,13 @@ function GroupAdministration {
                 else
 		    oc policy add-role-to-user admin  system:serviceaccount:devops:jenkins -n $2
                     oc adm policy add-role-to-group edit devops -n $2
-                    echo "Please Contact Your System Administrator, Requester Has No Group In Selected OpenShift Cluster"
+		    echo "Group ‘$GROUPDL’ was not found in the OpenShift Cluster for this Project ‘$2’. Please check the group name and try again."
                 fi
 
 }
 
 ######### Select the cluster ###########
+# It checks if the group exists and adds the edit role accordingly. In case the group does not exist, it prints out an error message
 function SiteSelector {
     if [   "$1" == "HQ(HACluster)"  ];
     then
